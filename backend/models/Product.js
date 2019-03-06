@@ -86,7 +86,7 @@ export function createProduct(productData, callback) {
     productAvailable
   } = productData;
 
-  db.
+  db
     .sync()
     .then(() => {
       ProductModel.create({ // using the product model and create method
