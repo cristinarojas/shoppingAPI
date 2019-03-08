@@ -60,6 +60,24 @@ const ProductModel = db.define('products', {
         msg: 'The product available is empty'
       }
     }
+  },
+  slug: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'The slug available is empty'
+      }
+    }
+  },
+  author: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'The author available is empty'
+      }
+    }
   }
 });
 
@@ -86,16 +104,18 @@ export function createProduct(productData, callback) {
     productAvailable
   } = productData;
 
+  const data = {
+    productName,
+    slug: productName ? slugFn(productName, { lower: 'on' }): '',
+    productPrice,
+    productAvailable,
+    author: 'Cristina Rojas'
+  };
+
   db
     .sync()
     .then(() => {
-      ProductModel.create({ // using the product model and create method
-        productName,
-        slug: productName ? slugFn(productName, { lower: 'on' }): '',
-        productPrice,
-        productAvailable,
-        author: 'Cristina Rojas'
-      }).then((insertedProduct) => {
+      ProductModel.create(data).then((insertedProduct) => {
         console.log(insertedProduct);
         callback(insertedProduct.dataValues);
       }).catch((error) => {
@@ -114,10 +134,13 @@ export function updateProduct(slug, productData, callback) {
     productAvailable
   } = productData;
 
+  const newSlug =  slugFn(productName, { lower: 'on' });
+  console.log('newSlug', newSlug);
+  console.log('slug', slug);
   ProductModel.update( // Using the product model and update method
     {
       productName,
-      slug: slugFn(product, { lower: 'on' }),
+      slug: newSlug,
       productPrice,
       productAvailable
     },
@@ -140,7 +163,7 @@ export function removeProduct(slug, callback) {
       slug
     }
   }).then(rowDeleted => {
-    console.log('DELETED', rowDeleted);
+    console.log('DELETED->>>>>', rowDeleted);
     callback(rowDeleted);
   }).catch(error => {
     callback(false, error);
